@@ -70,9 +70,10 @@
   [validators suspect]
   (let [entries (vec suspect)] (and (contains? suspect :name)
                                     (contains? suspect :glitter-index)
-                                    (every? true? (map (fn [[vamp-key value]]
-                                                        ((get validators vamp-key) value))
-                                                     entries)))))
+                                    (every? identity 
+                                            (map (fn [[vamp-key value]]
+                                                    ((get validators vamp-key) value))
+                                                entries)))))
 
 
   ;; Test to see that both a :name and :glitter-index is present
@@ -93,7 +94,6 @@
                                     (str name "," glitter-index))
                               suspects)))
   
-
 
 ;; Exercises:
 ;; 1. [X] Turn the result of your glitter filter into a list of names
