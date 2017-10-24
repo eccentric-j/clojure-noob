@@ -23,7 +23,7 @@
   [text & results]
   (title (str text "\n"))
   (run! inspect results)
-  nil) 
+  nil)
 
 ;; Updates
 ; It's good practice to use two ;; to denote a header
@@ -37,7 +37,7 @@
 ; (+ 1 2)
 ; => 3
 ; This makes them referentially transparent where you could replace calls
-; to them with their output and the program would still work. 
+; to them with their output and the program would still work.
 
 ; If a function relies on immutable data it's referentially transparent. If
 ; a function reads from a file it's also not referentially transparent.
@@ -52,14 +52,14 @@
 ;; not tail-call-optimized (TCO) meaning that each recursion adds to the stack
 ;; and no performance optimizations can be made
 (defn sum-basic
-  ([vals] (sum vals 0))      ; -> sum([1 2 3] 0)
+  ([vals] (sum-basic vals 0))      ; -> sum([1 2 3] 0)
   ([vals accumulating-total] ; -> sum([1 2 3] 0) -> sum([2 3] (+ 1 0))
    (if (empty? vals)
      accumulating-total
-     (sum (rest vals) (+ (first vals) accumulating-total)))))
+     (sum-basic (rest vals) (+ (first vals) accumulating-total)))))
 
 (defn sum-recur
-  ([vals] (sum vals 0))
+  ([vals] (sum-recur vals 0))
   ([vals accumulating-total]
    (if (empty? vals)
      accumulating-total
@@ -76,7 +76,7 @@
 
         great-baby-name
         ; => "Rosanthony"
-        
+
         (sum-basic [1 2 3])
         ; => 6
         (= (sum-basic [1 2 3]) (sum-recur [1 2 3])))
@@ -84,7 +84,7 @@
 
 (lesson "Composition instead of Attribute Mutation"
         ;; When the return value of one function is passed as an argument
-        ;; to another is called function composition. 
+        ;; to another is called function composition.
         ;; f . g (x) == f(g(x))
         (defn clean
           [text]
@@ -93,14 +93,67 @@
         ; => "My boa constrictor is so sassy LOL!"
         ((comp inc *) 2 3)
         ; => 7
-        ; But I'm not entirely sure why? 
+        ; But I'm not entirely sure why?
         (* 2 3)
         ; Aha! * is multiply function and inc = x => x + 1
         ; so it's like calling (inc (* 2 3))
-        (= ((comp inc *) 2 3) (inc (* 2 3))))
+        (= ((comp inc *) 2 3) (inc (* 2 3)))
         ; => true
         ; Note that the last function passed into comp can take any number of
-        ; args but 
-        ; tes
+        ; args but the rest of the functions do not.
+        (def character
+          {:name "Smooches McCutes"
+           :attributes {:intelligence 10
+                        :strength 4
+                        :dexterity 5}})
+        (def c-int (comp :intelligence :attributes))
+        (def c-str (comp :strength :attributes))
+        ;; much better than R.compose(R.prop('dexterity'), R.prop('attributes))
+        (def c-dex (comp :dexterity :attributes))
+        (c-int character)
+        ; => 10
+        ;; could be expressed as (fn [c] (:strength (:attributes c)))
+        (c-str character)
+        ; => 4
+        (c-dex character)
+        ; => 5
+        (defn spell-slots
+          [char]
+          (int (inc (/ (c-int char) 2))))
+        (spell-slots character)
+        ; => 6
+        (defn two-comp
+          [f g]
+          (fn [& args]
+            (f (apply g args))))
+        ((two-comp inc +) 1 2)
+        ; => 4
+        (defn multi-comp
+          [& fns]
+          (fn [& args]
+            (let [[first-f & fs] (reverse fns)]
+              ;; the source of comp shows it uses a recursive reduce like
+              ;; (list* f g fs) which creates a new seq contaiing the items
+              ;; prepended to the rest. The last arg is treated as the rest
+              ;; (list 1 2 [3 4 5]) ; => [1 2 3 4 5]
+              (reduce (fn [res f]
+                        (f res)) (apply first-f args) fs))))
+        ((multi-comp inc +) 1 2))
+
+(lesson "Memoize"
+  (defn sleepy-identity
+    "Returns the given value after 1 second"
+    [x]
+    (Thread/sleep 1000)
+    x))
+  ;(sleepy-identity "Mr. Fantastico")
+  ; => "Mr. Fantastico (after 1 second)"
+  ;; memoize  seems to work by wrapping a function and checking its arguments
+  ;; and storing its return value
+  ; (def memo-sleepy-identity (memoize sleepy-identity))
+  ; (memo-sleepy-identity "Mr. Fantastico")
+  ; => "Mr. Fantastico" (after 1 second)
+  ; (memo-sleepy-identity "Mr. Fantastico"))
+  ; => "Mr. Fantastico" (immediately)
 
 
