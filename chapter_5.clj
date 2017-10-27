@@ -65,6 +65,8 @@
      accumulating-total
      (recur (rest vals) (+ (first vals) accumulating-total)))))
 
+(sum-recur [1 2 3])
+
 (lesson "Recursion"
         (def great-baby-name "Rosanthony")
         great-baby-name
@@ -145,15 +147,14 @@
     "Returns the given value after 1 second"
     [x]
     (Thread/sleep 1000)
-    x))
+    x)
   ;(sleepy-identity "Mr. Fantastico")
   ; => "Mr. Fantastico (after 1 second)"
   ;; memoize  seems to work by wrapping a function and checking its arguments
   ;; and storing its return value
-  ; (def memo-sleepy-identity (memoize sleepy-identity))
-  ; (memo-sleepy-identity "Mr. Fantastico")
+  (def memo-sleepy-identity (memoize sleepy-identity)))
+  ; (memo-sleepy-identity "Mr. Fantastico"))
   ; => "Mr. Fantastico" (after 1 second)
   ; (memo-sleepy-identity "Mr. Fantastico"))
   ; => "Mr. Fantastico" (immediately)
-
 
