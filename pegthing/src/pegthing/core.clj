@@ -4,11 +4,6 @@
 
 (declare successful-move prompt-move game-over query-rows)
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
-
 ;; Increments the sum by an increasing incrementer
 ; (tri 0 1)
 ; (tri 1 2)
@@ -31,8 +26,6 @@
   "Is the number triangular? e.g. 1, 3, 6, 10, 15, etc"
   [n]
   (= n (last (take-while #(>= n %) tri))))
-
-(triangular? 6)
 
 ;; Takes 0 - N of the lazy tri seq and returns the last value
 ; (row-tri 1)
@@ -71,5 +64,7 @@
             [[pos destination] [destination pos]])
     board))
 
-(connect {} 15 1 2 4)
-
+(defn -main
+  "I don't do a whole lot ... yet."
+  [& args])
+  ; (prompt-rows))
