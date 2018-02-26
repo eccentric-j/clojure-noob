@@ -8,11 +8,6 @@
 
 (declare successful-move prompt-move game-over query-rows)
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
-
 ;; Increments the sum by an increasing incrementer
 ; (tri 0 1)
 ; (tri 1 2)
@@ -35,8 +30,6 @@
   "Is the number triangular? e.g. 1, 3, 6, 10, 15, etc"
   [n]
   (= n (last (take-while #(>= n %) tri))))
-
-(triangular? 6)
 
 ;; Takes 0 - N of the lazy tri seq and returns the last value
 ; (row-tri 1)
@@ -77,8 +70,6 @@
             [[pos destination] [destination pos]])
     board))
 
-(connect {} 15 1 2 4)
-
 (defn connect-right
   [board max-pos pos]
   ;; neighbor is one position to the right,
@@ -114,16 +105,6 @@
         destination (+ 2 row neighbor)]
     (connect board max-pos pos neighbor destination)))
 
-(connect-right {} 15 4)
-
-(connect-down-left {} 15 1)
-; {1 {:connects {4 2}
-;  5 {:connections {1 2}}}
-
-(connect-down-right {} 15 2)
-(triangular? 4)
-(row-num 12)
-
 (defn add-pos
   "Pegs the position and performs connections"
   [board max-pos pos]
@@ -136,8 +117,6 @@
             pegged-board
             [connect-right connect-down-left connect-down-right])))
 
-(add-pos {} 15 1)
-
 (defn new-board
   "Creates a new board with the given number of rows"
   [rows]
@@ -146,8 +125,6 @@
     (reduce (fn [board pos] (add-pos board max-pos pos))
             initial-board
             (range 1 (inc max-pos)))))
-
-(new-board 5)
 
 (defn pegged?
   "Does the position have a peg in it?"
@@ -179,13 +156,6 @@
                        (pegged? board jumped)))
                 (get-in board [pos :connections]))))
 
-(def my-board (assoc-in (new-board 5) [4 :pegged] false))
-(valid-moves my-board 1)
-(valid-moves my-board 6)
-(valid-moves my-board 11)
-(valid-moves my-board 5)
-(valid-moves my-board 8)
-
 (defn valid-move?
   "Return jumped position if the move from p1 to p2 is valid, nil otherwise"
   [board p1 p2]
@@ -202,9 +172,6 @@
   [board]
   (some (comp not-empty (partial valid-moves board))
         (map first (filter #(get (second %) :pegged board)))))
-
-(valid-move? my-board 8 4)
-(valid-move? my-board 1 4)
 
 ;; Printing now
 (def alpha-start 97)
@@ -267,7 +234,6 @@
     (println (render-row board row-num))))
 
 (defn show-board [] (print-board {:rows 5}))
-(show-board)
 
 (defn letter->pos
   "Converts a letter string to the corresponding position number"
@@ -339,3 +305,8 @@
         (do
           (println "Bye!")
           (System/exit 0))))))
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [& args]
+  (prompt-rows))
