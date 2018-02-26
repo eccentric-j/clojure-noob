@@ -142,6 +142,17 @@
                         (f res)) (apply first-f args) fs))))
         ((multi-comp inc +) 1 2))
 
+(lesson "Ch. 6 Redefine clean"
+  (defn clean
+    [text]
+    (reduce (fn [string string-fn] (string-fn string))
+            text
+            [s/trim #(s/replace % #"lol" "LOL")]))
+  (clean "My boa constrictor is so sassy lol!   "))
+
+
+
+
 (lesson "Memoize"
   (defn sleepy-identity
     "Returns the given value after 1 second"
@@ -157,4 +168,3 @@
   ; => "Mr. Fantastico" (after 1 second)
   ; (memo-sleepy-identity "Mr. Fantastico"))
   ; => "Mr. Fantastico" (immediately)
-
