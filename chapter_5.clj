@@ -1,7 +1,8 @@
 ;; Chapter 5: Functional Programming
 
 ;; First import! More coming in chapter 6
-(require '[clojure.string :as s])
+(require '[clojure.string :as s]
+         '[clojure.pprint :refer [pprint]])
 
 (defn inspect
   [arg]
@@ -164,7 +165,31 @@
   ;; memoize  seems to work by wrapping a function and checking its arguments
   ;; and storing its return value
   (def memo-sleepy-identity (memoize sleepy-identity)))
-  ; (memo-sleepy-identity "Mr. Fantastico"))
-  ; => "Mr. Fantastico" (after 1 second)
-  ; (memo-sleepy-identity "Mr. Fantastico"))
-  ; => "Mr. Fantastico" (immediately)
+  ;; (memo-sleepy-identity "Mr. Fantastico"))
+  ;; => "Mr. Fantastico" (after 1 second)
+  ;; (memo-sleepy-identity "Mr. Fantastico"))
+  ;; => "Mr. Fantastico" (immediately)
+
+(lesson "Exercises")
+
+(lesson "Exercise 1 - Implement attr"
+  (def character
+    {:name "Smooches McCutes"
+     :attributes {:intelligence 10
+                  :strength 4
+                  :dexterity 5}})
+  (defn attr
+    [attribute]
+    (fn [c] (reduce #(%2 %1) c [:attributes attribute])))
+
+  (str "Exercise 1 result: " ((attr :intelligence) character)))
+(lesson "Exercise 2 - Implement comp"
+  (defn my-comp
+    [& fns]
+    (fn [v]
+      (loop [result v
+             [f & rest-fns] fns]
+        (if (empty? rest-fns)
+          (f result)
+          (recur (f result) rest-fns)))))
+  (str "Exercise 2 result: " ((my-comp :a :b) {:a {:b 5}})))
