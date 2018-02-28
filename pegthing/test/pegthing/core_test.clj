@@ -2,6 +2,8 @@
   (:require [clojure.test :refer :all]
             [pegthing.core :refer :all]))
 
+(def my-board (assoc-in (new-board 5) [4 :pegged] false))
+
 (deftest tri-test
   (testing "Tri Test"
     (is (= (last (take 1 tri)) 1))
@@ -82,5 +84,30 @@
 
 (deftest valid-moves-test
   (testing "Returns map of valid moves for a given pos"
-    (is (= (valid-moves (remove-peg (new-board 5) 12) 5)
-           {12 8}))))
+    (is (= (valid-moves my-board 1)
+           {4 2}))
+    (is (= (valid-moves my-board 6)
+           {4 5}))
+    (is (= (valid-moves my-board 11)
+           {4 7}))
+    (is (= (valid-moves my-board 5)
+           {}))
+    (is (= (valid-moves my-board 8)
+           {}))))
+
+(deftest valid-move-test
+  (testing "Returns a positive integer when pos1 to pos2 is a valid move otherwise nil"
+    (is (= (valid-move? my-board 8 4) nil))
+    (is (= (valid-move? my-board 1 4) 2))))
+
+(deftest make-move-test
+  (testing "Removes jumped peg from board"
+    (is (= (get-in (make-move my-board 1 4) [2 :pegged])
+           false))
+    (is (= (make-move my-board 1 6)
+           nil))))
+
+(deftest can-move?-test
+  (testing "Returns true when board has valid moves"
+    (is (= (can-move? my-board) {4 2}))
+    (is (= (can-move? (new-board 5)) nil))))

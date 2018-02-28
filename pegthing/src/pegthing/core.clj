@@ -171,7 +171,7 @@
   "Do any of the pegged positions have valid moves?"
   [board]
   (some (comp not-empty (partial valid-moves board))
-        (map first (filter #(get (second %) :pegged board)))))
+        (map first (filter #(get (second %) :pegged) board))))
 
 ;; Printing now
 (def alpha-start 97)
