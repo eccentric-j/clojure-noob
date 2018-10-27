@@ -51,7 +51,13 @@
   `lat,lng`
   "
   [latlng]
-  (str (:lng latlng) "," (:lat latlng)))
+  ;; Interestingly in the first example of this function in the book
+  ;; on page 134 the order is :lng then :lat. In the second example
+  ;; on page 142 it was :lat then. :lng.
+  ;;
+  ;; Online it is consistently :lat then :lng.
+  ;; https://www.braveclojure.com/organization/
+  (str (:lat latlng) "," (:lng latlng)))
 
 (defn points
   "Takes a collection of coordinate maps like {:lat ## :lng ##} and returns
@@ -84,7 +90,7 @@
        ;; These two <g> tags change the coodrinate system so that
        ;; 0,0 is in the lower-left corner, instead of SVG's default
        ;; upper-left corner
-       "<g transform=\"translate(0, " height ")\">"
+       "<g transform=\"translate(0," height ")\">"
        "<g transform=\"rotate(-90)\">"
        (-> (transform width height locations)
            points
