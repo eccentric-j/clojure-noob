@@ -1,3 +1,5 @@
+(ns clojure-noob.chapter-3)
+
 ;; Chapter 3: Clojure Crash Course
 (def asym-hobbit-body-parts [{:name "head" :size 3}
                              {:name "left-eye" :size 1}
@@ -160,4 +162,3 @@
           asym-body-parts))
 
 (println "LOADED `hobbit.clj`")
-

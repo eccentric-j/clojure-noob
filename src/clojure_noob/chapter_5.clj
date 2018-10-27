@@ -1,3 +1,4 @@
+(ns clojure-noob.chapter-5)
 ;; Chapter 5: Functional Programming
 
 ;; First import! More coming in chapter 6
@@ -183,6 +184,7 @@
     (fn [c] (reduce #(%2 %1) c [:attributes attribute])))
 
   (str "Exercise 1 result: " ((attr :intelligence) character)))
+
 (lesson "Exercise 2 - Implement comp"
   (defn my-comp
     [& fns]

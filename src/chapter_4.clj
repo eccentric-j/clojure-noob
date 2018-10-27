@@ -1,3 +1,4 @@
+(ns clojure-noob.chapter-4)
 ;; Chapter 4: Core Functions in Depth
 
 ;; Iterable types are fully compatible with the seq functions map, reduce, into,
@@ -25,7 +26,7 @@
   [text & results]
   (title (str text "\n"))
   (run! inspect results)
-  nil) 
+  nil)
 
 (map titleize ["Hamsters" "Ragnarok"])
 
@@ -194,7 +195,7 @@
         (concat [1 2] [3 4])
         ;; => [1 2 3 4]
         (concat [] [1 2 3 4]))
-        
+
 (def vampire-database
   {0 {:makes-blook-puns? false :has-pulse? true  :name "McFishwich"}
    1 {:makes-blood-puns? false :has-pulse? true  :name "McMackson"}
@@ -237,7 +238,7 @@
         ; => ("na" .... "na" "Batman!")
         (take 3 (repeatedly (fn [] (rand-int 10))))
         (take 10 (even-numbers)))
-        
+
 
 ;; Sequence abstrations deal with each item in the list individually
 ;; where as Collection abstractions deal with the entire list
@@ -358,12 +359,12 @@
           (filter not-vampire?
                   (map vampire-related-details social-security-numbers)))
         (identify-humans (range 0 4))
-        
+
         (defn my-complement
           [fun]
           (fn [& args]
             (not (apply fun args))))
-        
+
         ;; Written in book using complement, should it be my-complement?
         (def my-pos? (my-complement neg?))
         (my-pos? 1)
