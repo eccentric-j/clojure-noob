@@ -135,3 +135,102 @@
 ;; => (clojure.core/+ 1 2)
 
 ;; ~ evaluates a form
+
+;; Regular quoting
+(defmacro code-critic
+  "Phrases are courtesy Hermes Conrad from Futurama"
+  [bad good]
+  (list 'do
+        (list 'println
+              "Great squid of Madrid, this is bad code:"
+              (list 'quote bad))
+        (list 'println
+              "Sweet gorilla of Manilla, this is good code:"
+              (list 'quote good))))
+
+(code-critic (1 + 1) (+ 1 1))
+
+;; Syntax quoting
+(defmacro code-critic
+  "Phrases are courtesy Hermes Conrad from Futurama"
+  [bad good]
+  `(do (println "Great squid of Madrid, this is bad code:"
+                (quote ~bad))
+       (println "Sweet gorilla of Manilla, this is good code:"
+                (quote ~good))))
+
+(code-critic (1 + 1) (+ 1 1))
+
+(defn criticize-code
+  [criticism code]
+  `(println ~criticism (quote ~code)))
+
+(defmacro code-critic
+  [bad good]
+  `(do ~(criticize-code "Cursed bacteria of Liberia, this is bad code: "
+                        bad)
+       ~(criticize-code "Sweet sacred boa of Western and Eastern Samoa, this is good code:"
+                        good)))
+
+(defmacro code-critic
+  [bad good]
+  `(do ~(map #(apply criticize-code %)
+             [["Great squid of Madrid, this is bad code:" bad]
+              ["Sweet gorilla of Manilla, this is good code:" good]])))
+
+;; Results in NullPointerPosition
+;; Because it evalutes to (do (nil nil))
+
+(code-critic (1 + 1) (+ 1 1))
+
+;; Can be fixed with unquote slicing
+
+`(+ ~@(list 1 2 3))
+;; => (clojure.core/+ 1 2 3)
+
+(defmacro code-critic
+  [bad good]
+  `(do ~@(map #(apply criticize-code %)
+              [["Sweet lion of Zion, this is bad code:" bad]
+               ["Great cow of Moscow, this is good code:" good]])))
+
+(code-critic (1 + 1) (+ 1 1))
+
+
+;; Variable Capture
+
+(def message "Good job!")
+
+(defmacro with-mischief
+  [& stuff-to-do]
+  (concat (list 'let ['message "Oh big deal!"])
+          stuff-to-do))
+
+(with-mischief
+  (println "Here's how I feel about that thing you did:" message))
+
+;; GASP! Prints Oh big deal! Instead of good job
+
+(gensym)
+(gensym)
+
+(= (gensym 'message) (gensym 'message))
+;; => false
+
+(defmacro without-mischief
+  [& stuff-to-do]
+  (let [macro-message (gensym 'message)]
+    `(let [~macro-message "Oh big deal"]
+       ~@stuff-to-do
+       (println "I still need to say:" ~macro-message))))
+
+(without-mischief
+ (println "Here's how I feel about that thing you did:" message))
+
+;; More concise gensym syntax
+
+`(blarg# blarg#)
+
+`(let [name# "Larry Potter"] name#)
+
+;; Double Evaluation
