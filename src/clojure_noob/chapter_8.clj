@@ -1,4 +1,5 @@
-(ns clojure-noob.chapter-8)
+(ns clojure-noob.chapter-8
+  (:require [clojure.repl :refer :all]))
 
 ;; Chapter 8 :: Writing Macros
 
@@ -234,3 +235,82 @@
 `(let [name# "Larry Potter"] name#)
 
 ;; Double Evaluation
+
+(defmacro report
+  [to-try]
+  `(if ~to-try
+     (println (quote ~to-try) "was successful:" ~to-try)
+     (println (quote ~to-try) "was not successful:" ~to-try)))
+
+(report (do (Thread/sleep 1000) (+ 1 1)))
+
+;; The (Thread/sleep 1000) will be executed 3 times
+;; Instead...
+
+(defmacro report
+  [to-try]
+  `(let [result# ~to-try]
+     (if result#
+       (println (quote ~to-try) "was successful:" result#)
+       (println (quote ~to-try) "was not successful:" result#))))
+
+;; Macros all the way down
+;; Sometimes you may end up having to write multiple macros to get anything
+;; useful accomplished.
+
+(report (= 1 1))
+(report (= 1 2))
+
+(doseq [code ['(= 1 1) '(= 1 2)]]
+  (report code))
+
+;; Will not work as expected because (report code) receives the symbol 'code
+;; instead of the value of code
+
+(defmacro doseq-macro
+  [macroname & args]
+  `(do
+     ~@(map (fn [arg] (list macroname arg)) args)))
+
+(doseq-macro report (= 1 1) (= 1 2))
+
+;; If you find yourself in this situation you may want to rethink your
+;; approach
+
+;; Brews for the Brave and True
+
+(def order-details-validations
+  {:name
+   ["Please enter a name" not-empty]
+   :email
+   ["Please enter an email address" not-empty
+    "Your email address doesn't look like an email address."
+    #(or (empty? %) (re-seq #"@" %))]})
+
+(defn error-messages-for
+  "Return a seq of error messages"
+  [to-validate message-validator-pairs]
+  (map first (filter #(not ((second %) to-validate))
+                     (partition 2 message-validator-pairs))))
+
+
+(error-messages-for "" ["Please enter a name" not-empty])
+
+(defn validate
+  "Returns a map with a vector of errors for each key"
+  [to-validate validations]
+  (reduce (fn [errors validation]
+            (let [[fieldname validation-check-groups] validation
+                  value (get to-validate fieldname)
+                  error-messages (error-messages-for value validation-check-groups)]
+              (if (empty? error-messages)
+                errors
+                (assoc errors fieldname error-messages))))
+          {}
+          validations))
+
+
+(def order-details {:name "Mitchard Blimmons"
+                    :email "mitchard.blimmonsgmail.com"})
+
+(validate order-details order-details-validations)
