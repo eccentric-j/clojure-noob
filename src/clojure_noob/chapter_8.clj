@@ -314,3 +314,50 @@
                     :email "mitchard.blimmonsgmail.com"})
 
 (validate order-details order-details-validations)
+
+;; Typical use case
+
+(let [errors (validate order-details order-details-validations)]
+  (if (empty? errors)
+    (println :success)
+    (println :failure errors)))
+
+(defn if-valid
+  [record validations success-code failure-code]
+  (let [errors (validate record validations)]
+    (if (empty? errors)
+      success-code
+      failure-code)))
+
+;; Use case of if-valid. Will not run as render is not defined
+(if-valid order-details order-details-validations errors
+  (render :success)
+  (render :failure errors))
+
+(defmacro if-valid
+  "Handle validation more concisely"
+  [to-validate validations errors-name & then-else]
+  `(let [~errors-name (validate ~to-validate ~validations)]
+     (if (empty? ~errors-name)
+       ~@then-else)))
+
+(if-valid order-details order-details-validations my-error-name
+  (println :success)
+  (println :failure my-error-name))
+
+;; Exercises
+
+;; Exercise 8.1
+;; Write the macro when-valid so that it behaves smiliarly to when. When the
+;; date is valid, the body forms should be evaluated, and should return nil if
+;; the data is invalid.
+
+(macroexpand '(when true
+                (println "Hi")
+                (println :success)))
+
+(defmacro when-valid
+  "Takes a map of data a map of validations and executes the body if valid.
+  Returns nil."
+  (println "It's a success")
+  (println :success))
