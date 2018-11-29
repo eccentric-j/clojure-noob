@@ -313,6 +313,9 @@
 (def order-details {:name "Mitchard Blimmons"
                     :email "mitchard.blimmonsgmail.com"})
 
+(def valid-order-details {:name "Mitchard Blimmons"
+                          :email "mitchard.blimmons@gmail.com"})
+
 (validate order-details order-details-validations)
 
 ;; Typical use case
@@ -356,8 +359,59 @@
                 (println "Hi")
                 (println :success)))
 
+;; =>
+(comment (if true
+           (do
+             (println "Hi")
+             (println :success))))
+
 (defmacro when-valid
   "Takes a map of data a map of validations and executes the body if valid.
   Returns nil."
-  (println "It's a success")
-  (println :success))
+  [to-validate validations & then]
+  `(let [valid# (validate ~to-validate ~validations)]
+     (if (empty? valid#)
+       (do ~@then))))
+
+(when-valid order-details order-details-validations
+  (println "It's a success!")
+  (doto :success println))
+
+;; Exercise 8.2
+;; Implement ``or`` as a macro.
+
+(defmacro my-or
+  "Returns the first truthy value or the last falsey value"
+  ([] nil)
+  ([x] x)
+  ([x & next]
+   `(let [or# ~x]
+      (if or# or# (my-or ~@next)))))
+
+(my-or true)
+(my-or true false)
+(my-or false nil :b)
+
+;; Exercise 8.3
+;; Write a macro that defines an arbitrary number of attribute-retrieving
+;; functions using one macro call.
+
+(defmacro defattrs
+  [& attr-pairs]
+  `(do
+     ~@(map
+        (fn [[fn-name attr]]
+            (list 'defn fn-name '[character]
+                  (list 'get-in 'character [':attributes attr])))
+        (partition 2 attr-pairs))
+     nil))
+
+;; Test provided by book
+(defattrs c-int :intelligence
+          c-str :strength
+          c-dex :dexterity)
+
+;; Use these to remove symbol mapping
+(comment
+ (doseq [sym '[c-int c-str c-dex]]
+   (ns-unmap *ns* sym)))
