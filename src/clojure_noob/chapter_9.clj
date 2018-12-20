@@ -1,26 +1,6 @@
 ;; Chapter 9 ::  The Sacred Art of Concurrent and Parallel Programming
 (ns clojure-noob.chapter-9
-  (:require [clojure.string :as string]))
-
-(defn format-notes
-  [sep notes]
-  (if (sequential? notes)
-    (dorun (map #(println (str sep %)) notes))
-    (format-notes sep (string/split notes #"\n"))))
-
-(defmacro lesson
-  [section-id title notes & forms]
-  `(do (println (str "Section " ~section-id " :: " ~title))
-       (println "\n  Notes:")
-       (format-notes "   - " ~notes)
-       (print "\n")
-       (println (str "  " '~@forms))
-       (println (str "   => " ~@forms))))
-
-(lesson 8.1
-        "This is a test lesson"
-        "Should return true"
-        (+ 1 1))
+  (:require [clojure-noob.note :refer :all]))
 
 ;; Define a task and place it on another thread.
 ;; Will not require an immediate result

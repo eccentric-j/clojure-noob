@@ -1,31 +1,14 @@
-(ns clojure-noob.chapter-5)
+(ns clojure-noob.chapter-5
+  (:require [clojure-noob.note :refer :all]))
 ;; Chapter 5: Functional Programming
 
 ;; First import! More coming in chapter 6
 (require '[clojure.string :as s]
          '[clojure.pprint :refer [pprint]])
 
-(defn inspect
-  [arg]
-  (when-not (ifn? arg)
-    (print "  -> ")
-    (pprint arg)
-    (println "")))
-
-(defn title
-  [text]
-  (print (str "\n" text "\n")))
-
-
 (defn titleize
   [topic]
-  (str topic " for the Brave and True"))
-
-(defn lesson
-  [text & results]
-  (title (str text "\n"))
-  (run! inspect results)
-  nil)
+  (str topic " for the Brave and True")
 
 ;; Updates
 ; It's good practice to use two ;; to denote a header
@@ -50,59 +33,61 @@
 ; (print 3)   ; is not a pure function since it is changing the output of the
               ; program like writing to a file or stdout. Also includes rand.
 
+  (def great-baby-name "Rosanthony")
+  great-baby-name
+
+  (let [great-baby-name "Bloodthunder"]
+    great-baby-name)
+
+  great-baby-name)
 
 ;; not tail-call-optimized (TCO) meaning that each recursion adds to the stack
 ;; and no performance optimizations can be made
-(defn sum-basic
-  ([vals] (sum-basic vals 0))      ; -> sum([1 2 3] 0)
-  ([vals accumulating-total] ; -> sum([1 2 3] 0) -> sum([2 3] (+ 1 0))
-   (if (empty? vals)
-     accumulating-total
-     (sum-basic (rest vals) (+ (first vals) accumulating-total)))))
+(lesson 5.1 "sum-basic"
+  (defn sum-basic
+    ([vals] (sum-basic vals 0))      ; -> sum([1 2 3] 0)
+    ([vals accumulating-total] ; -> sum([1 2 3] 0) -> sum([2 3] (+ 1 0))
+     (if (empty? vals)
+       accumulating-total
+       (sum-basic (rest vals) (+ (first vals) accumulating-total)))))
+  (sum-basic [1 2 3]))
 
-(defn sum-recur
-  ([vals] (sum-recur vals 0))
-  ([vals accumulating-total]
-   (if (empty? vals)
-     accumulating-total
-     (recur (rest vals) (+ (first vals) accumulating-total)))))
+(lesson 5.2 "Sum-recur"
+  (defn sum-recur
+    ([vals] (sum-recur vals 0))
+    ([vals accumulating-total]
+     (if (empty? vals)
+       accumulating-total
+       (recur (rest vals) (+ (first vals) accumulating-total)))))
+  (sum-recur [1 2 3]))
 
-(sum-recur [1 2 3])
-
-(lesson "Recursion"
-        (def great-baby-name "Rosanthony")
-        great-baby-name
-        ; => "Rosanthony"
-
-        (let [great-baby-name "Bloodthunder"]
-          great-baby-name)
-        ; => "Bloodthunder"
-
-        great-baby-name
-        ; => "Rosanthony"
-
-        (sum-basic [1 2 3])
-        ; => 6
+(lesson 5.3 "Recursion"
         (= (sum-basic [1 2 3]) (sum-recur [1 2 3])))
         ; => true
 
-(lesson "Composition instead of Attribute Mutation"
+(lesson 5.4 "Composition instead of Attribute Mutation"
         ;; When the return value of one function is passed as an argument
         ;; to another is called function composition.
         ;; f . g (x) == f(g(x))
         (defn clean
           [text]
           (s/replace (s/trim text) #"lol" "LOL"))
-        (clean "My boa constrictor is so sassy lol!   ")
+        (clean "My boa constrictor is so sassy lol!   "))
+
+(lesson 5.5 "Composition introduction"
         ; => "My boa constrictor is so sassy LOL!"
         ((comp inc *) 2 3)
         ; => 7
         ; But I'm not entirely sure why?
-        (* 2 3)
+        (* 2 3))
+
+(lesson 5.6 "Composition breakdown"
         ; Aha! * is multiply function and inc = x => x + 1
         ; so it's like calling (inc (* 2 3))
-        (= ((comp inc *) 2 3) (inc (* 2 3)))
+        (= ((comp inc *) 2 3) (inc (* 2 3))))
         ; => true
+
+(lesson 5.7 "Setup Character Attributes"
         ; Note that the last function passed into comp can take any number of
         ; args but the rest of the functions do not.
         (def character
@@ -110,36 +95,46 @@
            :attributes {:intelligence 10
                         :strength 4
                         :dexterity 5}})
+        character)
+
+(lesson 5.8 "c-int getter"
         (def c-int (comp :intelligence :attributes))
+        (c-int character))
+
+(lesson 5.9 "c-str getter"
+        (notes "much better than R.compose(R.prop('dexterity'), R.prop('attributes))"
+               "could be expressed as (fn [c] (:strength (:attributes c)))")
         (def c-str (comp :strength :attributes))
-        ;; much better than R.compose(R.prop('dexterity'), R.prop('attributes))
+        (c-str character))
+
+(lesson 5.10 "c-dex getter"
         (def c-dex (comp :dexterity :attributes))
-        (c-int character)
-        ; => 10
-        ;; could be expressed as (fn [c] (:strength (:attributes c)))
-        (c-str character)
-        ; => 4
-        (c-dex character)
-        ; => 5
+        (c-dex character))
+
+(lesson 5.11 "spell slots"
         (defn spell-slots
           [char]
           (int (inc (/ (c-int char) 2))))
-        (spell-slots character)
-        ; => 6
+        (spell-slots character))
+
+(lesson 5.13 "Manual comp implementation with 2 functions"
         (defn two-comp
           [f g]
           (fn [& args]
             (f (apply g args))))
-        ((two-comp inc +) 1 2)
-        ; => 4
+        ((two-comp inc +) 1 2))
+
+(lesson 5.14 "Manual comp implementation"
+        (notes "
+               the source of comp shows it uses a recursive reduce like
+               (list* f g fs) which creates a new seq contaiing the items
+               prepended to the rest. The last arg is treated as the rest
+               (list 1 2 [3 4 5]) ; => [1 2 3 4 5]
+               ")
         (defn multi-comp
           [& fns]
           (fn [& args]
             (let [[first-f & fs] (reverse fns)]
-              ;; the source of comp shows it uses a recursive reduce like
-              ;; (list* f g fs) which creates a new seq contaiing the items
-              ;; prepended to the rest. The last arg is treated as the rest
-              ;; (list 1 2 [3 4 5]) ; => [1 2 3 4 5]
               (reduce (fn [res f]
                         (f res)) (apply first-f args) fs))))
         ((multi-comp inc +) 1 2))
