@@ -151,9 +151,9 @@
     x)
   (sleepy-identity "Mr. Fantastico"))
 
-(def memo-sleepy-identity (memoize sleepy-identity))
 
 (lesson 5 "With Memoize"
+  (def memo-sleepy-identity (memoize sleepy-identity))
   (time (memo-sleepy-identity "Mr. Fantastico"))
   (time (memo-sleepy-identity "Mr. Fantastico")))
 

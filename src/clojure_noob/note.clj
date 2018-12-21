@@ -37,6 +37,30 @@
        (reduce space-code-blocks "")
        (string/trimr)))
 
+(defn append
+  [item list]
+  (concat list [(if (> (count list) 1)
+                  (str "     " item)
+                  item)]))
+
+(defn format-eval
+  [[output return-value]]
+  (let [[first-line & lines] (string/split output #"\n")]
+    (->> lines
+         (map string/trim)
+         (map #(str "      " %))
+         (cons first-line)
+         (append return-value)
+         (remove empty?)
+         (string/join "\n"))))
+
+(defmacro with-out-str-and-value
+  [& body]
+  `(let [s# (new java.io.StringWriter)]
+     (binding [*out* s#]
+       (let [v# ~@body]
+         [(str s#) v#]))))
+
 (defmacro lesson
   "Render code and its output grouped as a lesson from a chapter.
   Takes a section-id number, title string, notes, and code forms.
@@ -57,13 +81,13 @@
            (println "")
            (println ~code)
            (print "   => ")
-           (pr (do ~@forms))
+           (println (format-eval (with-out-str-and-value (do ~@forms))))
            (println "\n")))
     (let [code (format-code forms)]
       `(do (println (str "Chapter " ~section-id " :: " ~title))
            (println ~code)
            (print "   => ")
-           (pr (do ~@forms))
+           (println (format-eval (with-out-str-and-value (do ~@forms))))
            (println "\n")))))
 
 (comment
