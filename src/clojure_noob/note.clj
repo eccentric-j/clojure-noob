@@ -21,13 +21,21 @@
        (map #(str "  " %))
        (string/join "\n")))
 
+(defn space-code-blocks
+  [code-str block]
+  (let [line-count (count (string/split block #"\n"))]
+    (if (< line-count 2)
+      (str code-str block "\n")
+      (str code-str block "\n\n"))))
+
 (defn format-code
   [forms]
   (->> forms
        (map #(with-out-str (pprint %)))
        (map string/trim)
        (map #(format-code-lines (string/split % #"\n")))
-       (string/join "\n\n")))
+       (reduce space-code-blocks "")
+       (string/trimr)))
 
 (defmacro lesson
   "Render code and its output grouped as a lesson from a chapter.
@@ -43,17 +51,20 @@
     (let [notes (-> forms first rest (format-notes))
           forms (rest forms)
           code (format-code forms)]
-      `(do (println (str "Section " ~section-id " :: " ~title))
+      `(do (println (str "Chapter " ~section-id " :: " ~title))
            (println "\n  Notes:")
            (println ~notes)
            (println "")
            (println ~code)
-           (println (str "   => " (do ~@forms)))))
+           (print "   => ")
+           (pr (do ~@forms))
+           (println "\n")))
     (let [code (format-code forms)]
-      `(do (println (str "Section " ~section-id " :: " ~title))
-           (println (string/join "\n  " (quote  ~forms)))
-           ; (println ~code)
-           (println (str "   => " (do ~@forms)))))))
+      `(do (println (str "Chapter " ~section-id " :: " ~title))
+           (println ~code)
+           (print "   => ")
+           (pr (do ~@forms))
+           (println "\n")))))
 
 (comment
   (macroexpand

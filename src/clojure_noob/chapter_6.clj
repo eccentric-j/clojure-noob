@@ -277,5 +277,3 @@ latlng->point
 (in-ns 'the-divine-cheese-code.core)
 (use 'clojure.java.browse)
 (use 'clojure.java.io)
-
-;; ## Exercises:
