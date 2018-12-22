@@ -40,8 +40,8 @@
 (defn append
   [item list]
   (concat list [(if (> (count list) 1)
-                  (str "     " item)
-                  item)]))
+                  (str "      " item)
+                  (str item))]))
 
 (defn format-eval
   [[output return-value]]
@@ -50,7 +50,7 @@
          (map string/trim)
          (map #(str "      " %))
          (cons first-line)
-         (append return-value)
+         (append (pr-str return-value))
          (remove empty?)
          (string/join "\n"))))
 
