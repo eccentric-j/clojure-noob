@@ -3,8 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [book-report "0.1.1-SNAPSHOT"]]
   :main ^:skip-aot clojure-noob.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}
-             :user {}})
+  :profiles {:uberjar {:aot :all}})

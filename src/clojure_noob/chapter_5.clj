@@ -1,29 +1,32 @@
 (ns clojure-noob.chapter-5
-  (:require [clojure-noob.note :refer :all]
-            [clojure.string :as s]
-            [clojure.pprint :refer [pprint]]))
+  (:require [book-report.core :refer [lesson]]
+            [clojure.string :as s]))
 
 ;; Chapter 5: Functional Programming
 
 ;; Updates
-; It's good practice to use two ;; to denote a header
-; and a single semi-colon (;) for line comments
+
+(lesson 5 "Comments"
+  (notes "It's good particie to use two ;; to denote a header"
+         "Use a single semi-colon (;) for line comments"))
 
 (lesson 5 "What makes a function pure?"
   (notes "Given the same set of args they always return the same result"
          "This makes them referentially transparent.
           Where you could replace calls to them with their output
-          and the program would still work.")
-  (+ 1 2))
-
-; If a function relies on immutable data it's referentially transparent. If
-; a function reads from a file it's also not referentially transparent.
-
-; There are no side effects!
-; (+ 1 2)     ; is a pure function because it does not observably change
-              ; anything in the program
-; (print 3)   ; is not a pure function since it is changing the output of the
-              ; program like writing to a file or stdout. Also includes rand.
+          and the program would still work."
+         "If a function relies on and returns immutable data it's
+         a pure function."
+         "Pure functions are referentially transparent")
+  (+ 1 2)
+  (notes "The above is a pure function"
+         "If a function reads from a file or has other side-effects
+         it's not referentially transparent.")
+  (print 3)
+  (notes "The above is not a pure function since it is changing the output of
+         the program like writing to a file or stdout.")
+  (rand 5)
+  (notes "Also not a pure function as it returns a different number each run."))
 
 (lesson 5 "Variable scope"
   (def great-baby-name "Rosanthony")
