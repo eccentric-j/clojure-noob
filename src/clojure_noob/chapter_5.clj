@@ -37,77 +37,87 @@
 
   great-baby-name)
 
-;; not tail-call-optimized (TCO) meaning that each recursion adds to the stack
-;; and no performance optimizations can be made
-(lesson 5 "sum-basic"
-  (defn sum-basic
-    ([vals] (sum-basic vals 0))      ; -> sum([1 2 3] 0)
-    ([vals accumulating-total] ; -> sum([1 2 3] 0) -> sum([2 3] (+ 1 0))
-     (if (empty? vals)
-       accumulating-total
-       (sum-basic (rest vals) (+ (first vals) accumulating-total)))))
-  (sum-basic [1 2 3]))
-
-(lesson 5 "Sum-recur"
-  (defn sum-recur
-    ([vals] (sum-recur vals 0))
-    ([vals accumulating-total]
-     (if (empty? vals)
-       accumulating-total
-       (recur (rest vals) (+ (first vals) accumulating-total)))))
-  (sum-recur [1 2 3]))
-
 (lesson 5 "Recursion"
-        (= (sum-basic [1 2 3]) (sum-recur [1 2 3])))
-        ; => true
+        (title "Basic Recursion")
+        (notes "Calls sum-basic directly by name to recurse"
+               "Not tail-call-optimized"
+               "Each iteration adds to the stack and no performance optimizations
+          have been made.")
+        (run (defn sum-basic
+               ([vals] (sum-basic vals 0)) ; -> sum([1 2 3] 0)
+               ([vals accumulating-total] ; -> sum([1 2 3] 0) -> sum([2 3] (+ 1 0))
+                (if (empty? vals)
+                  accumulating-total
+                  (sum-basic (rest vals) (+ (first vals) accumulating-total))))))
+        (sum-basic [1 2 3])
+        (notes "(sum [1 2 3] 0)"
+               "(sum [2 3] (+ 1 0))"
+               "(sum [3] (+ 2 1))"
+               "(sum [] (+ 3 3))")
+        (title "Recursion with recur")
+        (notes "Uses the recur form to call the parent defn to recurse"
+               "Better optimized for performance"
+               "Better for big collections"
+               "Uses parallelization")
+        (run (defn sum-recur
+               ([vals] (sum-recur vals 0))
+               ([vals accumulating-total]
+                (if (empty? vals)
+                  accumulating-total
+                  (recur (rest vals) (+ (first vals) accumulating-total))))))
+        (sum-recur [1 2 3])
 
-(lesson 5 "Composition instead of Attribute Mutation"
-        ;; When the return value of one function is passed as an argument
-        ;; to another is called function composition.
-        ;; f . g (x) == f(g(x))
+        (notes "Both functions are equivalent")
+        (= (sum-basic [1 2 3]) (sum-recur [1 2 3])))
+
+(lesson 5 "Composition"
+        (notes "When the return value of one function is passed as
+               an argument to another"
+               "f . g (x) = f(g(x))")
+        (title "Manual Composition")
         (defn clean
           [text]
           (s/replace (s/trim text) #"lol" "LOL"))
-        (clean "My boa constrictor is so sassy lol!   "))
+        (clean "My boa constrictor is so sassy lol!   ")
 
-(lesson 5 "Composition introduction"
-        ; => "My boa constrictor is so sassy LOL!"
+        (title "comp function")
         ((comp inc *) 2 3)
-        ; => 7
-        ; But I'm not entirely sure why?
-        (* 2 3))
+        (notes "Returns 7 but not sure why?")
+        (= (inc (* 2 3))
+           ((comp inc *) 2 3)
+           7)
+        (notes "The last function passed into comp can take any
+               number of args"
+               "The rest of the functions only work with an
+               arity of 1"))
 
-(lesson 5 "Composition breakdown"
-        ; Aha! * is multiply function and inc = x => x + 1
-        ; so it's like calling (inc (* 2 3))
-        (= ((comp inc *) 2 3) (inc (* 2 3))))
-        ; => true
-
-(lesson 5 "Setup Character Attributes"
-        ; Note that the last function passed into comp can take any number of
-        ; args but the rest of the functions do not.
+(lesson 5 "Composing Getters"
+        (title "Character Attributes")
         (def character
           {:name "Smooches McCutes"
            :attributes {:intelligence 10
                         :strength 4
                         :dexterity 5}})
-        character)
+        character
 
-(lesson 5 "c-int getter"
+        (title "c-int")
+
         (def c-int (comp :intelligence :attributes))
-        (c-int character))
+        (c-int character)
 
-(lesson 5 "c-str getter"
         (notes "much better than R.compose(R.prop('dexterity'), R.prop('attributes))"
                "could be expressed as (fn [c] (:strength (:attributes c)))")
+
+        (title "c-str")
+
         (def c-str (comp :strength :attributes))
-        (c-str character))
+        (c-str character)
 
-(lesson 5 "c-dex getter"
+        (title "c-dex")
         (def c-dex (comp :dexterity :attributes))
-        (c-dex character))
+        (c-dex character)
 
-(lesson 5 "spell slots"
+        (title "spell slots")
         (defn spell-slots
           [char]
           (int (inc (/ (c-int char) 2))))
@@ -127,15 +137,15 @@
                prepended to the rest. The last arg is treated as the rest
                (list 1 2 [3 4 5]) ; => [1 2 3 4 5]
                ")
-        (defn multi-comp
-          [& fns]
-          (fn [& args]
-            (let [[first-f & fs] (reverse fns)]
-              (reduce (fn [res f]
-                        (f res)) (apply first-f args) fs))))
-        ((multi-comp inc +) 1 2))
+        (run (defn multi-comp
+               [& fns]
+               (fn [& args]
+                 (let [[first-f & fs] (reverse fns)]
+                   (reduce (fn [res f]
+                             (f res)) (apply first-f args) fs)))))
+        (= ((multi-comp inc +) 1 2) 4))
 
-(lesson 5 "Redefine clean"
+(lesson 5 "Redefine clean with reduce"
   (defn clean
     [text]
     (reduce (fn [string string-fn] (string-fn string))
@@ -143,45 +153,50 @@
             [s/trim #(s/replace % #"lol" "LOL")]))
   (clean "My boa constrictor is so sassy lol!   "))
 
-(lesson 5 "Without memoize"
-  (notes "Prints Mr. Fantastico (after 1 second)"
-         "seems to work by wrapping a function and checking its arguments
+
+(lesson 5 "Memoization"
+       (notes "Can be used to speed up performance"
+              "Stores results and attempts to map args to directly to result")
+       (title "Without")
+       (notes "Prints Mr. Fantastico (after 1 second)"
+              "seems to work by wrapping a function and checking its arguments
           storing its return value")
-  (defn sleepy-identity
-    "Returns the given value after 1 second"
-    [x]
-    (Thread/sleep 1000)
-    x)
-  (sleepy-identity "Mr. Fantastico"))
+       (defn sleepy-identity
+         "Returns the given value after 1 second"
+         [x]
+         (Thread/sleep 1000)
+         x)
+       (sleepy-identity "Mr. Fantastico")
 
+       (title "With Memoize")
+       (def memo-sleepy-identity (memoize sleepy-identity))
+       (time (memo-sleepy-identity "Mr. Fantastico"))
+       (time (memo-sleepy-identity "Mr. Fantastico")))
 
-(lesson 5 "With Memoize"
-  (def memo-sleepy-identity (memoize sleepy-identity))
-  (time (memo-sleepy-identity "Mr. Fantastico"))
-  (time (memo-sleepy-identity "Mr. Fantastico")))
+(lesson "5 Exercise 1" "Implement attr"
+        (run
+          (def character
+            {:name "Smooches McCutes"
+             :attributes {:intelligence 10
+                          :strength 4
+                          :dexterity 5}})
+          (defn attr
+            [attribute]
+            (fn [c] (reduce #(%2 %1) c [:attributes attribute]))))
+        (= ((attr :intelligence) character)
+           10))
 
-(def character
-  {:name "Smooches McCutes"
-   :attributes {:intelligence 10
-                :strength 4
-                :dexterity 5}})
-(defn attr
-  [attribute]
-  (fn [c] (reduce #(%2 %1) c [:attributes attribute])))
-
-(lesson 5 "Exercise 1 - Implement attr"
-  ((attr :intelligence) character))
-
-(defn brave-comp
-  [& fns]
-  (fn [& args]
-    (let [[f1 & fns] (reverse fns)]
-      (loop [[f & fns] fns
-             result (apply f1 args)]
-        (if (empty? fns)
-          (f result)
-          (recur fns
-                 (f result)))))))
-
-(lesson 5 "Exercise 2 - Implement comp"
-  ((brave-comp :c :b :a) {:a {:b {:c "pie"}}}))
+(lesson "5 Exercise 2" "Implement comp"
+        (run
+          (defn brave-comp
+            [& fns]
+            (fn [& args]
+              (let [[f1 & fns] (reverse fns)]
+                (loop [[f & fns] fns
+                       result (apply f1 args)]
+                  (if (empty? fns)
+                    (f result)
+                    (recur fns
+                           (f result))))))))
+        (= ((brave-comp :c :b :a) {:a {:b {:c "pie"}}})
+           "pie"))
