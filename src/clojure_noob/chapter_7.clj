@@ -1,7 +1,8 @@
 (ns clojure-noob.chapter-7
-  (:require [clojure.pprint :refer [pprint]]))
+  (:require [book-report.core :refer [lesson]]
+            [clojure.pprint :refer [pprint]]))
 
-;; Chapter 7 :: Reading, Evaluation, and Macros
+(lesson 7 "Reading, Evaluation, and Macros")
 
 (defmacro backwards
   [form]
@@ -10,7 +11,7 @@
 
 ;; Doesn't follow typical syntax convention. Instead it allows us to use
 ;; a new syntax
-(pprint (backwards (" backwards" " am" "I" str)))
+(backwards (#_ "" " backwards" " am" "I" str))
 
 ;; # Evaluation
 
@@ -258,7 +259,7 @@ false
 ;;   - The first phase is to group our pairs together.
 ;;   - The second phase is to nest them
 
-(def order-of-operations '(* / + -) )
+(def order-of-operations '(* / + -))
 
 (defn drop-slice
   [v start end]
@@ -319,11 +320,11 @@ false
         (nest-pairs first-pair))))
 
 ;; So this works
-(infix (1 + 3 * 4 - 5))
+;; (infix (1 + 3 * 4 - 5))
 ;; => 8
 
 ;; But this does not
-(infix (1 + 3 * 4 - 5 * 3))
+;; (infix (1 + 3 * 4 - 5 * 3))
 ;; => 32 should be -2
 
 ;; So my logic is incorrect but for the purpose of the lesson I think the
